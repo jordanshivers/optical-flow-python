@@ -5,6 +5,7 @@ setup(
     version='1.0.0',
     description='Optical flow estimation: Python reimplementation of Sun, Roth & Black (CVPR 2010)',
     author='Original: Deqing Sun, Stefan Roth, Michael J. Black; Python port',
+    license='Research Use Only - See LICENSE file',
     packages=find_packages(),
     python_requires='>=3.8',
     install_requires=[

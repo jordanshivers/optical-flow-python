@@ -1,0 +1,12 @@
+This Python reimplementation is provided for research purposes only, 
+consistent with the original MATLAB release from Brown University.
+
+See the original license terms at:
+https://cs.brown.edu/people/mjblack/BrownFlowCopyright2010.html
+
+Commercial use is strictly prohibited. For commercial uses, contact the 
+Technology Venture Office of Brown University.
+
+If you use this code in your research, please cite:
+Sun, D., Roth, S., & Black, M. J. (2010). Secrets of optical flow estimation 
+and their principles. CVPR 2010.

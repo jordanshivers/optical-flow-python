@@ -299,4 +299,19 @@ On the RubberWhale sequence, Classic+NL-Fast produces AAE 2.463 (MATLAB referenc
 
 ## License
 
-This code is provided for research purposes only, consistent with the original MATLAB release from Brown University. Please cite the original paper if you use this code in your research.
+This code is provided for **research purposes only**, consistent with the original MATLAB release from Brown University. **Commercial use is strictly prohibited.**
+
+See [LICENSE](LICENSE) file for full terms.
+
+**Important:** If you use this code in your research, please cite the original paper:
+
+```bibtex
+@inproceedings{sun2010secrets,
+  title={Secrets of optical flow estimation and their principles},
+  author={Sun, Deqing and Roth, Stefan and Black, Michael J},
+  booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2010}
+}
+```
+
+For commercial uses, contact the Technology Venture Office of Brown University.
