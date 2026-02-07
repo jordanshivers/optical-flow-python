@@ -61,8 +61,6 @@ pytest -v
 pytest tests/test_derivatives.py
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more details on testing and development.
-
 ## Quick Start
 
 ```python
