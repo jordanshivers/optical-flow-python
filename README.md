@@ -211,34 +211,6 @@ Jupyter notebooks are provided in `notebooks/`. Each `optical_flow` notebook has
 | `optical_flow_demo_additional.ipynb` | `flow_fast_demo_additional.ipynb` | Multi-method comparison, penalty functions, pyramids, parameter sensitivity |
 | `middlebury_benchmark.ipynb` | `flow_fast_benchmark.ipynb` | Full benchmark on 8 Middlebury sequences with error maps and bar charts |
 
-## Robust Penalty Functions
-
-Each penalty function supports three evaluation modes: value (`d_type=0`), first derivative (`d_type=1`), and IRLS weight `rho'(x)/x` (`d_type=2`).
-
-| Function | Formula | Properties |
-|---|---|---|
-| `quadratic` | `x^2 / sigma^2` | Convex, non-robust |
-| `lorentzian` | `log(1 + x^2/(2*sigma^2))` | Robust, smooth |
-| `charbonnier` | `sigma^2 * sqrt(1 + (x/sigma^2)^2)` | Robust, smooth, L1-like |
-| `generalized_charbonnier` | `(sigma^2 + x^2)^a` | Tunable robustness via exponent `a` |
-| `geman_mcclure` | `x^2 / (sigma^2 + x^2)` | Robust, redescending |
-| `huber` | piecewise quadratic/linear | Robust, piecewise smooth |
-| `tukey` | biweight function | Robust, compact support |
-| `gaussian` | `-log N(x; 0, sigma)` | Quadratic (non-robust) |
-| `tdist` | Student-t negative log-likelihood | Robust, heavy tails |
-| `tdist_unnorm` | unnormalized Student-t | Robust, heavy tails |
-
-## Key Parameters
-
-| Parameter | Description | Typical Values |
-|---|---|---|
-| `lambda_` | Regularization weight | 3--80 (depends on method) |
-| `pyramid_spacing` | Downsampling ratio between levels | 2.0 |
-| `gnc_iters` | GNC stages (1 = no GNC) | 1--3 |
-| `max_iters` | Warping iterations per pyramid level | 3--10 |
-| `texture` | Use ROF structure-texture decomposition | `True`/`False` |
-| `median_filter_size` | Weighted median filter size | `[5, 5]` |
-| `interpolation_method` | Image interpolation | `'cubic'`, `'bi-linear'` |
 
 ## Package Structure
 
