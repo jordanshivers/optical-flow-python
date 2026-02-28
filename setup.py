@@ -2,12 +2,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='optical_flow',
-    version='1.0.0',
+    version='1.1.0',
     description='Optical flow estimation: Python reimplementation of Sun, Roth & Black (CVPR 2010)',
     author='Original: Deqing Sun, Stefan Roth, Michael J. Black; Python port',
     license='Research Use Only - See LICENSE file',
-    packages=find_packages(),
-    python_requires='>=3.8',
+    packages=find_packages(include=['optical_flow', 'optical_flow.*',
+                                    'flow_fast', 'flow_fast.*']),
+    python_requires='>=3.9',
     install_requires=[
         'numpy>=1.21',
         'scipy>=1.7',
@@ -16,7 +17,17 @@ setup(
         'scikit-image>=0.19',
     ],
     extras_require={
-        'dev': ['pytest>=7.0', 'jupyter'],
+        'fast': [
+            'numba>=0.58',
+            'opencv-python>=4.5',
+        ],
+        'cholmod': [
+            'scikit-sparse>=0.4.8',
+        ],
+        'dev': [
+            'pytest>=7.0',
+            'jupyter',
+        ],
     },
     package_data={
         '': ['data/**/*'],

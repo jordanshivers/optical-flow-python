@@ -6,7 +6,11 @@ Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjbl
 > Deqing Sun, Stefan Roth, and Michael J. Black
 > *IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2010*
 
-This package provides classical variational optical flow methods with robust penalty functions, coarse-to-fine estimation, and graduated non-convexity (GNC) optimization. 
+This repository contains two packages:
+
+- **`optical_flow`** -- Python port of the original MATLAB code. 
+- **`flow_fast`** -- High-performance drop-in replacement using Numba JIT, OpenCV, and an optimized PCG solver.
+
 
 ## Features
 
@@ -26,17 +30,23 @@ This package provides classical variational optical flow methods with robust pen
 
 - **Evaluation metrics:** Average Angular Error (AAE) and Average Endpoint Error (AEPE)
 
+- **`flow_fast` acceleration backends:**
+  - Numba `@njit(parallel=True)` for weighted median, ROF denoising, penalty functions, bicubic interpolation
+  - OpenCV for image warping (`cv2.remap`), filtering (`cv2.filter2D`), pyramid construction (`cv2.resize`)
+  - PCG solver with Jacobi preconditioner (replaces SuperLU `spsolve`)
+  - Optional CHOLMOD direct solver via scikit-sparse
+
 ## Installation
 
 ```bash
 cd flow_code_python
-pip install -e .
+pip install -e ".[fast]"
 ```
 
-Or install dependencies manually:
+This installs both `optical_flow` and `flow_fast` with all dependencies. To install only the base package:
 
 ```bash
-pip install numpy scipy matplotlib Pillow scikit-image
+pip install -e .
 ```
 
 For development (tests + notebooks):
@@ -66,7 +76,9 @@ pytest tests/test_derivatives.py
 ```python
 import numpy as np
 from PIL import Image
-from optical_flow import estimate_flow, flow_to_color, plot_flow
+
+# --- Use the fast version (recommended) ---
+from flow_fast import estimate_flow, flow_to_color, plot_flow
 
 # Load two consecutive frames
 im1 = np.array(Image.open('frame1.png')).astype(float)
@@ -84,21 +96,27 @@ color_img = flow_to_color(uv)
 ax = plot_flow(uv, style='color')
 ```
 
+The original `optical_flow` package has the same API:
+
+```python
+from optical_flow import estimate_flow  # identical interface, just slower
+```
+
 ## Available Methods
 
-| Method Name | Description | Speed |
-|---|---|---|
-| `'classic+nl-fast'` | Classic+NL with reduced iterations (recommended) | Fast |
-| `'classic+nl'` | Classic+NL with texture decomposition and weighted median | Medium |
-| `'classic+nl-full'` | Classic+NL with full weighted median version | Slow |
-| `'hs'` | Horn-Schunck with ROF texture constancy | Fast |
-| `'hs-brightness'` | Horn-Schunck with brightness constancy | Fast |
-| `'ba'` / `'classic-l'` | Black-Anandan with lorentzian, texture | Medium |
-| `'ba-brightness'` | Black-Anandan with brightness constancy | Medium |
-| `'classic-c'` | Classic with charbonnier penalties, texture | Medium |
-| `'classic-c-brightness'` | Classic with charbonnier, brightness | Medium |
-| `'classic++'` | Classic++ with generalized charbonnier, bi-cubic interpolation | Medium |
-| `'classic-c-a'` | Alt-BA with charbonnier penalties | Slow |
+| Method Name | Description |
+|---|---|
+| `'classic+nl-fast'` | Classic+NL with reduced iterations (recommended) |
+| `'classic+nl'` | Classic+NL with texture decomposition and weighted median |
+| `'classic+nl-full'` | Classic+NL with full weighted median version |
+| `'hs'` | Horn-Schunck with ROF texture constancy |
+| `'hs-brightness'` | Horn-Schunck with brightness constancy |
+| `'ba'` / `'classic-l'` | Black-Anandan with lorentzian, texture |
+| `'ba-brightness'` | Black-Anandan with brightness constancy |
+| `'classic-c'` | Classic with charbonnier penalties, texture |
+| `'classic-c-brightness'` | Classic with charbonnier, brightness |
+| `'classic++'` | Classic++ with generalized charbonnier, bi-cubic interpolation |
+| `'classic-c-a'` | Alt-BA with charbonnier penalties |
 
 ## Using Pre-configured Methods
 
@@ -185,11 +203,13 @@ plt.savefig('flow_visualization.png')
 
 ## Notebooks
 
-Two Jupyter notebooks are provided in `notebooks/`:
+Jupyter notebooks are provided in `notebooks/`. Each `optical_flow` notebook has a corresponding `flow_fast` version with identical analysis but using the accelerated package:
 
-- **`optical_flow_demo.ipynb`** -- Runs Classic+NL-Fast on the RubberWhale sequence, displays color-coded and vector flow fields, and evaluates against ground truth. Matches the original MATLAB `estimate_flow_demo.m`.
-
-- **`middlebury_benchmark.ipynb`** -- Benchmarks all methods on the 8 Middlebury training sequences (Dimetrodon, Grove2, Grove3, Hydrangea, RubberWhale, Urban2, Urban3, Venus). Datasets are downloaded automatically on first run. Includes results tables, flow visualizations, error maps, and a multi-method comparison.
+| `optical_flow` (original) | `flow_fast` (accelerated) | Description |
+|---|---|---|
+| `optical_flow_demo.ipynb` | `flow_fast_demo.ipynb` | Classic+NL-Fast on RubberWhale with visualization and GT evaluation |
+| `optical_flow_demo_additional.ipynb` | `flow_fast_demo_additional.ipynb` | Multi-method comparison, penalty functions, pyramids, parameter sensitivity |
+| `middlebury_benchmark.ipynb` | `flow_fast_benchmark.ipynb` | Full benchmark on 8 Middlebury sequences with error maps and bar charts |
 
 ## Robust Penalty Functions
 
@@ -226,42 +246,31 @@ Each penalty function supports three evaluation modes: value (`d_type=0`), first
 flow_code_python/
 ├── setup.py
 ├── requirements.txt
-├── optical_flow/
-│   ├── __init__.py              # Public API exports
-│   ├── interface.py             # estimate_flow() high-level API
-│   ├── methods/
-│   │   ├── base.py              # BaseOpticalFlow abstract class
-│   │   ├── hs.py                # Horn-Schunck
-│   │   ├── ba.py                # Black-Anandan
-│   │   ├── classic_nl.py        # Classic+NL
-│   │   ├── alt_ba.py            # Alternative BA
-│   │   └── config.py            # load_of_method() factory
-│   ├── robust/
-│   │   ├── penalties.py         # Penalty function implementations
-│   │   └── robust_function.py   # RobustFunction wrapper class
-│   ├── utils/
-│   │   ├── derivatives.py       # Spatiotemporal derivatives with warping
-│   │   ├── pyramid.py           # Gaussian image pyramid
-│   │   ├── sparse_ops.py        # Sparse convolution matrices
-│   │   ├── warping.py           # Flow field resampling
-│   │   ├── image_processing.py  # ROF decomposition, Gaussian kernels
-│   │   ├── occlusion.py         # Occlusion detection
-│   │   ├── weighted_median.py   # Color-guided weighted median filtering
-│   │   └── denoising.py         # Li-Osher median denoising
-│   ├── io/
-│   │   └── flo_io.py            # .flo file read/write, sequence loader
-│   ├── viz/
-│   │   ├── flow_color.py        # Middlebury color coding
-│   │   └── plot_flow.py         # Flow visualization
-│   └── evaluation/
-│       └── metrics.py           # AAE, EPE metrics
-├── data/                        # Middlebury sequences
-│   ├── other-data/              # Image pairs (frame10.png, frame11.png)
-│   └── other-gt-flow/           # Ground truth flow (.flo files)
-├── notebooks/
-│   ├── optical_flow_demo.ipynb        # Single-sequence demo
-│   └── middlebury_benchmark.ipynb     # Full benchmark with comparisons
-└── tests/                       # Unit and integration tests (82 tests)
+├── optical_flow/               # Original Python port (scipy-based)
+│   ├── __init__.py
+│   ├── interface.py            # estimate_flow() high-level API
+│   ├── methods/                # HS, BA, Classic+NL, Alt-BA
+│   ├── robust/                 # Penalty functions + RobustFunction
+│   ├── utils/                  # Derivatives, pyramid, warping, weighted median
+│   ├── io/                     # .flo file I/O
+│   ├── viz/                    # Flow visualization
+│   └── evaluation/             # AAE, EPE metrics
+├── flow_fast/                  # Accelerated version (same API)
+│   ├── __init__.py
+│   ├── interface.py            # Same estimate_flow() API
+│   ├── methods/                # Same methods, wired to fast backends
+│   ├── _accel/                 # Numba JIT kernels (weighted median, ROF, etc.)
+│   ├── solvers/                # PCG + CHOLMOD solver dispatch
+│   ├── robust/                 # Numba-accelerated penalty functions
+│   ├── utils/                  # OpenCV-based derivatives, pyramid, warping
+│   ├── io/                     # .flo file I/O (unchanged)
+│   ├── viz/                    # Flow visualization (unchanged)
+│   └── evaluation/             # AAE, EPE metrics (unchanged)
+├── data/                       # Middlebury sequences
+│   ├── other-data/             # Image pairs (frame10.png, frame11.png)
+│   └── other-gt-flow/          # Ground truth flow (.flo files)
+├── notebooks/                  # Demo notebooks (optical_flow + flow_fast versions)
+└── tests/                      # Unit and integration tests
 ```
 
 ## Tests
@@ -274,19 +283,6 @@ pytest tests/ -v
 ```
 
 82 tests cover robust functions, .flo I/O, sparse operators, image derivatives, pyramid construction, evaluation metrics, and integration tests for each method (HS, BA, Classic+NL).
-
-## MATLAB Compatibility
-
-This implementation closely follows the original MATLAB code, including:
-
-- Column-major (Fortran) ordering for array operations
-- MATLAB-style rounding (half away from zero) for `rgb2gray` and pyramid construction
-- MATLAB `imresize` coordinate convention for bilinear interpolation
-- Exact ROF structure-texture decomposition with [-1, 1] normalization
-- BT.709 RGB-to-Lab color space conversion with D65 white point
-- Hermite bicubic interpolation with analytical spatial derivatives
-
-On the RubberWhale sequence, Classic+NL-Fast produces AAE 2.463 (MATLAB reference: 2.401).
 
 ## References
 
@@ -311,5 +307,3 @@ See [LICENSE](LICENSE) file for full terms.
   year={2010}
 }
 ```
-
-For commercial uses, contact the Technology Venture Office of Brown University.

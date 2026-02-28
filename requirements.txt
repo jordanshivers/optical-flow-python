@@ -1,7 +1,17 @@
+# Core dependencies (optical_flow)
 numpy>=1.21
 scipy>=1.7
 matplotlib>=3.4
 Pillow>=8.0
 scikit-image>=0.19
+
+# Accelerated backend (flow_fast)
+numba>=0.58
+opencv-python>=4.5
+
+# Optional: faster sparse solver
+# scikit-sparse>=0.4.8  # requires: brew install suite-sparse (macOS)
+
+# Development
+pytest>=7.0
 jupyter
-pytest
