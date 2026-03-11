@@ -6,6 +6,9 @@ from flow_fast.methods.config import load_of_method
 from flow_fast.utils.image_processing import scale_image
 
 
+_DEEP_METHODS = {'raft', 'sea-raft', 'waft'}
+
+
 def estimate_flow(im1, im2, method='classic+nl-fast', params=None):
     """Estimate optical flow between two images.
 
@@ -16,6 +19,7 @@ def estimate_flow(im1, im2, method='classic+nl-fast', params=None):
         im1: First image, (H, W) grayscale or (H, W, 3) RGB, float or uint8.
         im2: Second image, same size/format as im1.
         method: Method name string. See load_of_method for options.
+            Deep learning methods: 'raft', 'sea-raft', 'waft' (require PyTorch).
         params: Optional dict of parameter overrides.
 
     Returns:
@@ -23,6 +27,10 @@ def estimate_flow(im1, im2, method='classic+nl-fast', params=None):
     """
     im1 = np.asarray(im1, dtype=float)
     im2 = np.asarray(im2, dtype=float)
+
+    # Deep learning methods bypass variational preprocessing
+    if method.lower() in _DEEP_METHODS:
+        return _estimate_flow_deep(im1, im2, method, params)
 
     ope = load_of_method(method)
 
@@ -50,6 +58,17 @@ def estimate_flow(im1, im2, method='classic+nl-fast', params=None):
     uv = ope.compute_flow(init)
 
     return uv
+
+
+def _estimate_flow_deep(im1, im2, method, params):
+    """Dispatch to deep learning flow methods."""
+    from optical_flow.methods.deep import load_deep_method
+    ope = load_deep_method(method)
+    if params is not None:
+        ope.parse_input_parameter(params)
+    ope._im1 = im1
+    ope._im2 = im2
+    return ope.compute_flow()
 
 
 def _rgb2gray(im):

@@ -1,40 +1,42 @@
 # Optical Flow Estimation in Python
 
-Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from:
+A Python package for optical flow estimation, combining classical variational methods with recent deep learning approaches.
 
-> **"Secrets of Optical Flow Estimation and Their Principles"**
-> Deqing Sun, Stefan Roth, and Michael J. Black
-> *IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2010*
+The variational methods are a Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010). The deep learning methods (RAFT, SEA-RAFT, WAFT) are vendored from Princeton Vision & Learning Lab with auto-downloading pretrained weights.
 
 This repository contains two packages:
 
-- **`optical_flow`** -- Python port of the original MATLAB code. 
-- **`flow_fast`** -- High-performance drop-in replacement using Numba JIT, OpenCV, and an optimized PCG solver.
+- **`optical_flow`** -- Python/SciPy implementation of all methods (variational + deep learning).
+- **`flow_fast`** -- Drop-in replacement using Numba JIT, OpenCV, and an optimized PCG solver for variational methods. Deep learning methods are shared with `optical_flow`.
 
 
 ## Features
 
-- **Four optical flow methods:**
-  - **Horn-Schunck (HS)** -- Laplacian spatial regularization
-  - **Black-Anandan (BA)** -- Robust penalties with GNC optimization
-  - **Classic+NL** -- Non-local term with color-guided weighted median filtering
-  - **Alternative BA (Alt-BA)** -- Auxiliary flow field with Li-Osher denoising
+### Variational Methods
+- **Horn-Schunck (HS)** -- Laplacian spatial regularization
+- **Black-Anandan (BA)** -- Robust penalties with GNC optimization
+- **Classic+NL** -- Non-local term with color-guided weighted median filtering
+- **Alternative BA (Alt-BA)** -- Auxiliary flow field with Li-Osher denoising
+- 10 robust penalty functions (quadratic, lorentzian, charbonnier, generalized charbonnier, Geman-McClure, Huber, Tukey biweight, Gaussian, Student-t, unnormalized Student-t)
+- Complete pipeline: Gaussian image pyramids, ROF structure-texture decomposition, Hermite bicubic interpolation, IRLS optimization, sparse linear system solvers (PCG, direct, SOR), occlusion detection, weighted median filtering
 
-- **10 robust penalty functions:** quadratic, lorentzian, charbonnier, generalized charbonnier, Geman-McClure, Huber, Tukey biweight, Gaussian, Student-t, and unnormalized Student-t
+### Deep Learning Methods (optional, requires PyTorch)
+- **RAFT** (Teed & Deng, ECCV 2020) -- Recurrent All Pairs Field Transforms
+- **SEA-RAFT** (Wang, Lipson & Deng, ECCV 2024) -- Simple, Efficient, Accurate RAFT
+- **WAFT** (Wang & Deng, ICLR 2026) -- Warping-Alone Field Transforms
+- Multiple pretrained checkpoint variants per method (see [Model Weights](#model-weights))
+- Auto-download of weights on first use
 
-- **Complete pipeline:** Gaussian image pyramids, ROF structure-texture decomposition, Hermite bicubic interpolation, IRLS optimization, sparse linear system solvers (PCG, direct, SOR), occlusion detection, weighted median filtering
-
+### Utilities
 - **Middlebury .flo I/O:** read and write standard .flo flow files
-
 - **Visualization:** Middlebury color coding, quiver plots, magnitude maps, HSV encoding
-
 - **Evaluation metrics:** Average Angular Error (AAE) and Average Endpoint Error (AEPE)
 
-- **`flow_fast` acceleration backends:**
-  - Numba `@njit(parallel=True)` for weighted median, ROF denoising, penalty functions, bicubic interpolation
-  - OpenCV for image warping (`cv2.remap`), filtering (`cv2.filter2D`), pyramid construction (`cv2.resize`)
-  - PCG solver with Jacobi preconditioner (replaces SuperLU `spsolve`)
-  - Optional CHOLMOD direct solver via scikit-sparse
+### `flow_fast` Acceleration Backends
+- Numba `@njit(parallel=True)` for weighted median, ROF denoising, penalty functions, bicubic interpolation
+- OpenCV for image warping (`cv2.remap`), filtering (`cv2.filter2D`), pyramid construction (`cv2.resize`)
+- PCG solver with Jacobi preconditioner (replaces SuperLU `spsolve`)
+- Optional CHOLMOD direct solver via scikit-sparse
 
 ## Installation
 
@@ -49,26 +51,19 @@ This installs both `optical_flow` and `flow_fast` with all dependencies. To inst
 pip install -e .
 ```
 
-For development (tests + notebooks):
+For deep learning methods (RAFT, SEA-RAFT, WAFT):
 
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[deep]"
+
+# WAFT additionally requires gdown for Google Drive model downloads:
+pip install gdown
 ```
 
-## Running Tests
+For everything (fast + deep + dev):
 
 ```bash
-# Install development dependencies
-pip install -e ".[dev]"
-
-# Run all tests
-pytest
-
-# Run with verbose output
-pytest -v
-
-# Run a specific test file
-pytest tests/test_derivatives.py
+pip install -e ".[fast,deep,dev]"
 ```
 
 ## Quick Start
@@ -77,32 +72,31 @@ pytest tests/test_derivatives.py
 import numpy as np
 from PIL import Image
 
-# --- Use the fast version (recommended) ---
-from flow_fast import estimate_flow, flow_to_color, plot_flow
-
 # Load two consecutive frames
 im1 = np.array(Image.open('frame1.png')).astype(float)
 im2 = np.array(Image.open('frame2.png')).astype(float)
 
-# Estimate optical flow (Classic+NL-fast is the recommended default)
+# --- Variational (recommended default) ---
+from flow_fast import estimate_flow, flow_to_color, plot_flow
 uv = estimate_flow(im1, im2, method='classic+nl-fast')
 
-# uv is (H, W, 2): uv[:,:,0] = horizontal, uv[:,:,1] = vertical
+# --- Deep learning (works with both optical_flow and flow_fast) ---
+uv = estimate_flow(im1, im2, method='raft')       # RAFT
+uv = estimate_flow(im1, im2, method='sea-raft')    # SEA-RAFT
+uv = estimate_flow(im1, im2, method='waft')        # WAFT
 
-# Visualize as Middlebury color image
+# All methods return (H, W, 2): uv[:,:,0] = horizontal, uv[:,:,1] = vertical
+
+# Visualize
 color_img = flow_to_color(uv)
-
-# Or use matplotlib
 ax = plot_flow(uv, style='color')
 ```
 
-The original `optical_flow` package has the same API:
-
-```python
-from optical_flow import estimate_flow  # identical interface, just slower
-```
+Model weights are downloaded automatically on first use (see [Model Weights](#model-weights)).
 
 ## Available Methods
+
+### Variational Methods
 
 | Method Name | Description |
 |---|---|
@@ -118,19 +112,63 @@ from optical_flow import estimate_flow  # identical interface, just slower
 | `'classic++'` | Classic++ with generalized charbonnier, bi-cubic interpolation |
 | `'classic-c-a'` | Alt-BA with charbonnier penalties |
 
-## Using Pre-configured Methods
+### Deep Learning Methods
+
+Requires `pip install optical_flow[deep]`. Works with both `optical_flow` and `flow_fast`.
+
+| Method Name | Description |
+|---|---|
+| `'raft'` | RAFT -- Recurrent All Pairs Field Transforms (Teed & Deng, 2020) |
+| `'sea-raft'` | SEA-RAFT -- Simple, Efficient, Accurate RAFT (Wang et al., 2024) |
+| `'waft'` | WAFT -- Warping-Alone Field Transforms (Wang & Deng, 2026) |
+
+Select checkpoint variants via the `params` argument:
 
 ```python
-from optical_flow import estimate_flow
+# RAFT variants
+uv = estimate_flow(im1, im2, method='raft', params={'model_name': 'raft-sintel'})
 
-# Use a named method with default parameters
-uv = estimate_flow(im1, im2, method='classic+nl-fast')
-
-# Override specific parameters
-uv = estimate_flow(im1, im2, method='hs', params={'lambda': 50, 'max_iters': 15})
+# WAFT variants
+uv = estimate_flow(im1, im2, method='waft', params={'model_name': 'waft-sintel'})
 ```
 
+## Model Weights
+
+Deep learning methods automatically download pretrained weights on first use. Weights are cached locally so subsequent runs start instantly.
+
+- **Cache location:** `~/.cache/optical_flow/models/`
+- **Override:** set the `OPTICAL_FLOW_CACHE_DIR` environment variable
+
+### RAFT Checkpoints
+
+| Model Name | Training Data |
+|---|---|
+| `raft-things` (default) | FlyingThings3D |
+| `raft-sintel` | + Sintel fine-tuned |
+| `raft-kitti` | + KITTI fine-tuned |
+| `raft-small` | FlyingThings3D |
+
+### SEA-RAFT Checkpoints
+
+| Model Name | Training Data |
+|---|---|
+| `sea-raft-things` (default) | TartanAir + Chairs + Things + KITTI + Spring + Hd1k |
+
+### WAFT Checkpoints
+
+| Model Name | Training Data |
+|---|---|
+| `waft-things` (default) | TartanAir + Chairs + Things |
+| `waft-sintel` | + Sintel fine-tuned |
+| `waft-kitti` | + KITTI fine-tuned |
+| `waft-spring-540p` | + Spring fine-tuned (540p) |
+| `waft-spring-1080p` | + Spring fine-tuned (1080p) |
+
+WAFT also requires DepthAnythingV2 backbone weights, which are auto-downloaded from HuggingFace on first use (~100 MB for the default `vits` backbone).
+
 ## Using Method Classes Directly
+
+### Variational Methods
 
 ```python
 from optical_flow.methods import HSOpticalFlow, BAOpticalFlow, ClassicNLOpticalFlow
@@ -153,6 +191,22 @@ ba.rho_spatial_v = [RobustFunction('lorentzian', 0.03),
 ba.rho_data = RobustFunction('lorentzian', 1.5)
 ba.images = np.stack([gray1, gray2], axis=2)
 uv = ba.compute_flow(np.zeros((H, W, 2)))
+```
+
+### Deep Learning Methods
+
+```python
+from optical_flow.methods.deep import RAFTFlow, SEARAFTFlow, WAFTFlow
+
+# RAFT with Sintel-trained weights on GPU
+model = RAFTFlow(model_name='raft-sintel', device='cuda', iters=24)
+model._im1, model._im2 = im1, im2
+uv = model.compute_flow()
+
+# WAFT with Sintel fine-tuning
+model = WAFTFlow(model_name='waft-sintel', device='cuda')
+model._im1, model._im2 = im1, im2
+uv = model.compute_flow()
 ```
 
 ## Loading and Evaluating Middlebury Sequences
@@ -201,6 +255,24 @@ plt.tight_layout()
 plt.savefig('flow_visualization.png')
 ```
 
+## Running Tests
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run all tests
+pytest
+
+# Run with verbose output
+pytest -v
+
+# Run a specific test file
+pytest tests/test_derivatives.py
+```
+
+82 tests cover robust functions, .flo I/O, sparse operators, image derivatives, pyramid construction, evaluation metrics, and integration tests for each method (HS, BA, Classic+NL).
+
 ## Notebooks
 
 Jupyter notebooks are provided in `notebooks/`. Each `optical_flow` notebook has a corresponding `flow_fast` version with identical analysis but using the accelerated package:
@@ -210,6 +282,11 @@ Jupyter notebooks are provided in `notebooks/`. Each `optical_flow` notebook has
 | `optical_flow_demo.ipynb` | `flow_fast_demo.ipynb` | Classic+NL-Fast on RubberWhale with visualization and GT evaluation |
 | `optical_flow_demo_additional.ipynb` | `flow_fast_demo_additional.ipynb` | Multi-method comparison, penalty functions, pyramids, parameter sensitivity |
 | `middlebury_benchmark.ipynb` | `flow_fast_benchmark.ipynb` | Full benchmark on 8 Middlebury sequences with error maps and bar charts |
+
+| **Deep Learning** | | |
+|---|---|---|
+| `deep_flow_demo.ipynb` | -- | RAFT, SEA-RAFT, WAFT demo on RubberWhale with comparison |
+| `deep_flow_benchmark.ipynb` | -- | DL vs variational benchmark on all 8 Middlebury sequences |
 
 
 ## Package Structure
@@ -222,6 +299,16 @@ flow_code_python/
 │   ├── __init__.py
 │   ├── interface.py            # estimate_flow() high-level API
 │   ├── methods/                # HS, BA, Classic+NL, Alt-BA
+│   │   └── deep/              # Deep learning methods
+│   │       ├── _base.py       # DeepFlowBase ABC
+│   │       ├── raft.py        # RAFTFlow wrapper
+│   │       ├── sea_raft.py    # SEARAFTFlow wrapper
+│   │       ├── waft.py        # WAFTFlow wrapper
+│   │       ├── _model_cache.py # Auto-download and caching
+│   │       └── _vendor/       # Vendored inference code (BSD-3-Clause)
+│   │           ├── raft/
+│   │           ├── sea_raft/
+│   │           └── waft/      # Includes DepthAnythingV2 + DINOv2
 │   ├── robust/                 # Penalty functions + RobustFunction
 │   ├── utils/                  # Derivatives, pyramid, warping, weighted median
 │   ├── io/                     # .flo file I/O
@@ -229,8 +316,8 @@ flow_code_python/
 │   └── evaluation/             # AAE, EPE metrics
 ├── flow_fast/                  # Accelerated version (same API)
 │   ├── __init__.py
-│   ├── interface.py            # Same estimate_flow() API
-│   ├── methods/                # Same methods, wired to fast backends
+│   ├── interface.py            # Same estimate_flow() API (DL methods delegate to optical_flow)
+│   ├── methods/                # Same variational methods, wired to fast backends
 │   ├── _accel/                 # Numba JIT kernels (weighted median, ROF, etc.)
 │   ├── solvers/                # PCG + CHOLMOD solver dispatch
 │   ├── robust/                 # Numba-accelerated penalty functions
@@ -245,31 +332,25 @@ flow_code_python/
 └── tests/                      # Unit and integration tests
 ```
 
-## Tests
-
-Run the test suite with:
-
-```bash
-cd flow_code_python
-pytest tests/ -v
-```
-
-82 tests cover robust functions, .flo I/O, sparse operators, image derivatives, pyramid construction, evaluation metrics, and integration tests for each method (HS, BA, Classic+NL).
-
 ## References
 
 - D. Sun, S. Roth, and M. J. Black. "Secrets of Optical Flow Estimation and Their Principles." *CVPR*, 2010.
 - B. Horn and B. Schunck. "Determining Optical Flow." *Artificial Intelligence*, 1981.
 - M. J. Black and P. Anandan. "The Robust Estimation of Multiple Motions." *CVIU*, 1996.
 - S. Baker et al. "A Database and Evaluation Methodology for Optical Flow." *IJCV*, 2011.
+- Z. Teed and J. Deng. "RAFT: Recurrent All Pairs Field Transforms for Optical Flow." *ECCV*, 2020.
+- Y. Wang, L. Lipson, and J. Deng. "SEA-RAFT: Simple, Efficient, Accurate RAFT for Optical Flow." *ECCV*, 2024.
+- Y. Wang and J. Deng. "Warping-Alone Field Transforms for Efficient Optical Flow." *ICLR*, 2026.
 
 ## License
 
-This code is provided for **research purposes only**, consistent with the original MATLAB release from Brown University. **Commercial use is strictly prohibited.**
+The variational methods (`optical_flow`, `flow_fast`) are provided for **research purposes only**, consistent with the original MATLAB release from Brown University. **Commercial use is strictly prohibited.** See [LICENSE](LICENSE).
 
-See [LICENSE](LICENSE) file for full terms.
+The vendored deep learning code (RAFT, SEA-RAFT, WAFT) is from Princeton Vision & Learning Lab under the **BSD 3-Clause License**. See individual license files in `optical_flow/methods/deep/_vendor/*/LICENSE`.
 
-**Important:** If you use this code in your research, please cite the original paper:
+## Citations
+
+If you use this code in your research, please cite the relevant papers:
 
 ```bibtex
 @inproceedings{sun2010secrets,
@@ -277,5 +358,26 @@ See [LICENSE](LICENSE) file for full terms.
   author={Sun, Deqing and Roth, Stefan and Black, Michael J},
   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
   year={2010}
+}
+
+@inproceedings{teed2020raft,
+  title={{RAFT}: Recurrent All Pairs Field Transforms for Optical Flow},
+  author={Teed, Zachary and Deng, Jia},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2020}
+}
+
+@inproceedings{wang2024searaft,
+  title={{SEA-RAFT}: Simple, Efficient, Accurate {RAFT} for Optical Flow},
+  author={Wang, Yihan and Lipson, Lahav and Deng, Jia},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2024}
+}
+
+@inproceedings{wang2026waft,
+  title={Warping-Alone Field Transforms for Efficient Optical Flow},
+  author={Wang, Yihan and Deng, Jia},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2026}
 }
 ```

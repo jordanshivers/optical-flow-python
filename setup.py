@@ -24,6 +24,13 @@ setup(
         'cholmod': [
             'scikit-sparse>=0.4.8',
         ],
+        'deep': [
+            'torch>=1.6',
+            'timm',
+            'safetensors',
+            'huggingface_hub',
+            'gdown',
+        ],
         'dev': [
             'pytest>=7.0',
             'jupyter',

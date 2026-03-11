@@ -12,3 +12,9 @@ __all__ = [
     'AltBAOpticalFlow',
     'load_of_method',
 ]
+
+try:
+    from optical_flow.methods.deep import RAFTFlow, SEARAFTFlow, WAFTFlow
+    __all__ += ['RAFTFlow', 'SEARAFTFlow', 'WAFTFlow']
+except ImportError:
+    pass

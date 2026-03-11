@@ -172,5 +172,9 @@ def load_of_method(method):
         ope.lambda_q = 3
         return ope
 
+    elif method in ('raft', 'sea-raft', 'waft'):
+        from optical_flow.methods.deep import load_deep_method
+        return load_deep_method(method)
+
     else:
         raise ValueError(f"Unknown optical flow method: '{method}'")
