@@ -21,6 +21,7 @@ def load_of_method(method):
         - 'classic-c': Classic with charbonnier, texture
         - 'classic++': Classic++ with gen. charbonnier, texture, bi-cubic
         - 'classic-c-a': Alt BA with charbonnier penalties
+        - 'lk': Lucas-Kanade with Gaussian-weighted structure tensor
     """
     median_filter_size = [5, 5]
 
@@ -163,6 +164,13 @@ def load_of_method(method):
         ope.rho_data = RobustFunction(m, sig, a)
         ope.lambda_ = 3
         ope.lambda_q = 3
+        return ope
+
+    elif method == 'lk':
+        from flow_fast.methods.lk import LKOpticalFlow
+        ope = LKOpticalFlow()
+        ope.texture = True
+        ope.median_filter_size = median_filter_size
         return ope
 
     elif method in ('raft', 'sea-raft', 'waft'):

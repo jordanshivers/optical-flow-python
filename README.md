@@ -1,8 +1,8 @@
 # Optical Flow Estimation in Python
 
-A Python package for optical flow estimation, combining classical variational methods with recent deep learning approaches.
+A Python package for optical flow estimation, combining classical variational methods, the Lucas-Kanade local method, and recent deep learning approaches.
 
-The variational methods are a Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010). The deep learning methods (RAFT, SEA-RAFT, WAFT) are vendored from Princeton Vision & Learning Lab with auto-downloading pretrained weights.
+The variational methods are a largely a Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010), with the addition of an implementation of the Lucas-Kanade local method. The deep learning methods (RAFT, SEA-RAFT, WAFT) are vendored from Princeton Vision & Learning Lab with auto-downloading pretrained weights.
 
 This repository contains two packages:
 
@@ -12,7 +12,8 @@ This repository contains two packages:
 
 ## Features
 
-### Variational Methods
+### Classical Methods
+- **Lucas-Kanade (LK)** -- Local window-based method with Gaussian-weighted structure tensor
 - **Horn-Schunck (HS)** -- Laplacian spatial regularization
 - **Black-Anandan (BA)** -- Robust penalties with GNC optimization
 - **Classic+NL** -- Non-local term with color-guided weighted median filtering
@@ -96,10 +97,11 @@ Model weights are downloaded automatically on first use (see [Model Weights](#mo
 
 ## Available Methods
 
-### Variational Methods
+### Classical Methods
 
 | Method Name | Description |
 |---|---|
+| `'lk'` | Lucas-Kanade with Gaussian-weighted structure tensor |
 | `'classic+nl-fast'` | Classic+NL with reduced iterations (recommended) |
 | `'classic+nl'` | Classic+NL with texture decomposition and weighted median |
 | `'classic+nl-full'` | Classic+NL with full weighted median version |
@@ -283,6 +285,10 @@ Jupyter notebooks are provided in `notebooks/`. Each `optical_flow` notebook has
 | `optical_flow_demo_additional.ipynb` | `flow_fast_demo_additional.ipynb` | Multi-method comparison, penalty functions, pyramids, parameter sensitivity |
 | `middlebury_benchmark.ipynb` | `flow_fast_benchmark.ipynb` | Full benchmark on 8 Middlebury sequences with error maps and bar charts |
 
+| **Lucas-Kanade** | | |
+|---|---|---|
+| `lk_demo.ipynb` | -- | LK flow estimation, reliability map, window size sensitivity |
+
 | **Deep Learning** | | |
 |---|---|---|
 | `deep_flow_demo.ipynb` | -- | RAFT, SEA-RAFT, WAFT demo on RubberWhale with comparison |
@@ -298,7 +304,7 @@ flow_code_python/
 ├── optical_flow/               # Original Python port (scipy-based)
 │   ├── __init__.py
 │   ├── interface.py            # estimate_flow() high-level API
-│   ├── methods/                # HS, BA, Classic+NL, Alt-BA
+│   ├── methods/                # LK, HS, BA, Classic+NL, Alt-BA
 │   │   └── deep/              # Deep learning methods
 │   │       ├── _base.py       # DeepFlowBase ABC
 │   │       ├── raft.py        # RAFTFlow wrapper
@@ -334,6 +340,7 @@ flow_code_python/
 
 ## References
 
+- B.D. Lucas and T. Kanade. "An Iterative Image Registration Technique with an Application to Stereo Vision." *IJCAI*, 1981.
 - D. Sun, S. Roth, and M. J. Black. "Secrets of Optical Flow Estimation and Their Principles." *CVPR*, 2010.
 - B. Horn and B. Schunck. "Determining Optical Flow." *Artificial Intelligence*, 1981.
 - M. J. Black and P. Anandan. "The Robust Estimation of Multiple Motions." *CVIU*, 1996.
@@ -353,6 +360,13 @@ The vendored deep learning code (RAFT, SEA-RAFT, WAFT) is from Princeton Vision 
 If you use this code in your research, please cite the relevant papers:
 
 ```bibtex
+@inproceedings{lucas1981iterative,
+  title={An Iterative Image Registration Technique with an Application to Stereo Vision},
+  author={Lucas, Bruce D and Kanade, Takeo},
+  booktitle={International Joint Conference on Artificial Intelligence (IJCAI)},
+  year={1981}
+}
+
 @inproceedings{sun2010secrets,
   title={Secrets of optical flow estimation and their principles},
   author={Sun, Deqing and Roth, Stefan and Black, Michael J},

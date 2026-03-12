@@ -19,6 +19,7 @@ def estimate_flow(im1, im2, method='classic+nl-fast', params=None):
         im1: First image, (H, W) grayscale or (H, W, 3) RGB, float or uint8.
         im2: Second image, same size/format as im1.
         method: Method name string. See load_of_method for options.
+            Also: 'lk' (Lucas-Kanade).
             Deep learning methods: 'raft', 'sea-raft', 'waft' (require PyTorch).
         params: Optional dict of parameter overrides.
 

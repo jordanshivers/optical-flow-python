@@ -15,3 +15,6 @@ opencv-python>=4.5
 # Development
 pytest>=7.0
 jupyter
+
+# Deep learning dependencies
+torchvision>=0.14.0

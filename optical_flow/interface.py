@@ -29,6 +29,7 @@ def estimate_flow(im1, im2, method='classic+nl-fast', params=None):
             - 'ba': Black-Anandan with texture
             - 'classic-c': Classic with charbonnier
             - 'classic++': Classic++ with gen. charbonnier
+            - 'lk': Lucas-Kanade (local window method)
             - 'raft': RAFT (deep learning, requires PyTorch)
             - 'sea-raft': SEA-RAFT (deep learning, requires PyTorch)
             - 'waft': WAFT (deep learning, requires PyTorch)
