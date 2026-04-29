@@ -234,28 +234,6 @@ pytest tests/test_derivatives.py
 
 82 tests cover robust functions, .flo I/O, sparse operators, image derivatives, pyramid construction, evaluation metrics, and integration tests for each method (HS, BA, Classic+NL).
 
-## Notebooks
-
-Jupyter notebooks are provided in `notebooks/`. Each `optical_flow` notebook has a corresponding `flow_fast` version with identical analysis but using the accelerated package:
-
-| `optical_flow` (original) | `flow_fast` (accelerated) | Description |
-|---|---|---|
-| `optical_flow_demo.ipynb` | `flow_fast_demo.ipynb` | Classic+NL-Fast on RubberWhale with visualization and GT evaluation |
-| `optical_flow_demo_additional.ipynb` | `flow_fast_demo_additional.ipynb` | Multi-method comparison, penalty functions, pyramids, parameter sensitivity |
-| `middlebury_benchmark.ipynb` | `flow_fast_benchmark.ipynb` | Full benchmark on 8 Middlebury sequences with error maps and bar charts |
-
-| **Lucas-Kanade** | | |
-|---|---|---|
-| `lk_demo.ipynb` | -- | LK flow estimation, reliability map, window size sensitivity |
-
-| **Deep Learning** | | |
-|---|---|---|
-| `deep_flow_demo.ipynb` | -- | RAFT, SEA-RAFT, WAFT demo on RubberWhale with comparison |
-| `deep_flow_benchmark.ipynb` | -- | DL vs variational benchmark on all 8 Middlebury sequences |
-
-| **Microscopy** | | |
-|---|---|---|
-| `cell_migration_demo.ipynb` | -- | Cell Tracking Challenge sequence|
 
 ## Package Structure
 
