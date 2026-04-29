@@ -1,4 +1,4 @@
-# Optical Flow Estimation in Python
+# Optical flow estimation in Python
 
 A Python package for optical flow estimation, combining classical and deep learning approaches.
 
