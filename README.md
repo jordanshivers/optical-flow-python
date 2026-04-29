@@ -1,10 +1,12 @@
 # Optical Flow Estimation in Python
 
-A Python package for optical flow estimation, combining classical variational methods, the Lucas-Kanade local method, and recent deep learning approaches.
+A Python package for optical flow estimation, combining classical and deep learning approaches.
 
 ![Optical flow on migrating cells (Fluo-N2DH-SIM+): grayscale, Middlebury color encoding, quiver — from `notebooks/cell_migration_demo.ipynb`](cells.gif)
 
-The variational methods are a largely a Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010), with the addition of an implementation of the Lucas-Kanade local method. The deep learning methods include RAFT, SEA-RAFT, and WAFT (vendored from Princeton Vision & Learning Lab). Pretrained weights are auto-downloaded on first use.
+*SEA-RAFT flow on the `Fluo-N2DH-SIM+` sequence from the [Cell Tracking Challenge](https://celltrackingchallenge.net/) — see `notebooks/cell_migration_demo.ipynb`.*
+
+The variational methods are a largely a Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010), with the addition of an implementation of the Lucas-Kanade local method. The deep learning methods include RAFT, SEA-RAFT, and WAFT (vendored from Princeton Vision & Learning Lab). 
 
 This repository contains two packages:
 
@@ -130,40 +132,6 @@ Select checkpoint variants via the `params` argument:
 uv = estimate_flow(im1, im2, method='raft', params={'model_name': 'raft-sintel'})
 ```
 
-## Model Weights
-
-Deep learning methods automatically download pretrained weights on first use. Weights are cached locally so subsequent runs start instantly.
-
-- **Cache location:** `~/.cache/optical_flow/models/`
-- **Override:** set the `OPTICAL_FLOW_CACHE_DIR` environment variable
-
-### RAFT Checkpoints
-
-| Model Name | Training Data |
-|---|---|
-| `raft-things` (default) | FlyingThings3D |
-| `raft-sintel` | + Sintel fine-tuned |
-| `raft-kitti` | + KITTI fine-tuned |
-| `raft-small` | FlyingThings3D |
-
-### SEA-RAFT Checkpoints
-
-| Model Name | Training Data |
-|---|---|
-| `sea-raft-things` (default) | TartanAir + Chairs + Things + KITTI + Spring + Hd1k |
-
-### WAFT Checkpoints
-
-| Model Name | Training Data |
-|---|---|
-| `waft-things` (default) | TartanAir + Chairs + Things |
-| `waft-sintel` | + Sintel fine-tuned |
-| `waft-kitti` | + KITTI fine-tuned |
-| `waft-spring-540p` | + Spring fine-tuned (540p) |
-| `waft-spring-1080p` | + Spring fine-tuned (1080p) |
-
-WAFT also requires DepthAnythingV2 backbone weights, which are auto-downloaded from HuggingFace on first use (~100 MB for the default `vits` backbone).
-
 ## Using Method Classes Directly
 
 ### Variational Methods
@@ -285,7 +253,9 @@ Jupyter notebooks are provided in `notebooks/`. Each `optical_flow` notebook has
 | `deep_flow_demo.ipynb` | -- | RAFT, SEA-RAFT, WAFT demo on RubberWhale with comparison |
 | `deep_flow_benchmark.ipynb` | -- | DL vs variational benchmark on all 8 Middlebury sequences |
 
-
+| **Microscopy** | | |
+|---|---|---|
+| `cell_migration_demo.ipynb` | -- | Cell Tracking Challenge sequence|
 
 ## Package Structure
 
