@@ -284,9 +284,9 @@ flow_code_python/
 - B. Horn and B. Schunck. "Determining Optical Flow." *Artificial Intelligence*, 1981.
 - M. J. Black and P. Anandan. "The Robust Estimation of Multiple Motions." *CVIU*, 1996.
 - S. Baker et al. "A Database and Evaluation Methodology for Optical Flow." *IJCV*, 2011.
-- Z. Teed and J. Deng. "RAFT: Recurrent All Pairs Field Transforms for Optical Flow." *ECCV*, 2020.
+- Z. Teed and J. Deng. "RAFT: Recurrent All-Pairs Field Transforms for Optical Flow." *ECCV*, 2020.
 - Y. Wang, L. Lipson, and J. Deng. "SEA-RAFT: Simple, Efficient, Accurate RAFT for Optical Flow." *ECCV*, 2024.
-- Y. Wang and J. Deng. "Warping-Alone Field Transforms for Efficient Optical Flow." *ICLR*, 2026.
+- Y. Wang and J. Deng. "WAFT: Warping-Alone Field Transforms for Optical Flow." *ICLR*, 2026.
 
 ## License
 
@@ -314,7 +314,7 @@ If you use this code in your research, please cite the relevant papers:
 }
 
 @inproceedings{teed2020raft,
-  title={{RAFT}: Recurrent All Pairs Field Transforms for Optical Flow},
+  title={{RAFT}: Recurrent All-Pairs Field Transforms for Optical Flow},
   author={Teed, Zachary and Deng, Jia},
   booktitle={European Conference on Computer Vision (ECCV)},
   year={2020}
@@ -328,7 +328,7 @@ If you use this code in your research, please cite the relevant papers:
 }
 
 @inproceedings{wang2026waft,
-  title={Warping-Alone Field Transforms for Efficient Optical Flow},
+  title={{WAFT}: Warping-Alone Field Transforms for Optical Flow},
   author={Wang, Yihan and Deng, Jia},
   booktitle={International Conference on Learning Representations (ICLR)},
   year={2026}
