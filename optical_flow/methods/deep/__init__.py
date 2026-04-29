@@ -44,11 +44,13 @@ def load_deep_method(method):
         )
 
 
-# Conditional exports
-try:
-    from optical_flow.methods.deep.raft import RAFTFlow
-    from optical_flow.methods.deep.sea_raft import SEARAFTFlow
-    from optical_flow.methods.deep.waft import WAFTFlow
-    __all__ = ['load_deep_method', 'RAFTFlow', 'SEARAFTFlow', 'WAFTFlow']
-except ImportError:
-    __all__ = ['load_deep_method']
+from optical_flow.methods.deep.raft import RAFTFlow
+from optical_flow.methods.deep.sea_raft import SEARAFTFlow
+from optical_flow.methods.deep.waft import WAFTFlow
+
+__all__ = [
+    'load_deep_method',
+    'RAFTFlow',
+    'SEARAFTFlow',
+    'WAFTFlow',
+]

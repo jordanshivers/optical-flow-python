@@ -2,7 +2,9 @@
 
 A Python package for optical flow estimation, combining classical variational methods, the Lucas-Kanade local method, and recent deep learning approaches.
 
-The variational methods are a largely a Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010), with the addition of an implementation of the Lucas-Kanade local method. The deep learning methods (RAFT, SEA-RAFT, WAFT) are vendored from Princeton Vision & Learning Lab with auto-downloading pretrained weights.
+![Optical flow on migrating cells (Fluo-N2DH-SIM+): grayscale, Middlebury color encoding, quiver — from `notebooks/cell_migration_demo.ipynb`](cells.gif)
+
+The variational methods are a largely a Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010), with the addition of an implementation of the Lucas-Kanade local method. The deep learning methods include RAFT, SEA-RAFT, and WAFT (vendored from Princeton Vision & Learning Lab). Pretrained weights are auto-downloaded on first use.
 
 This repository contains two packages:
 
@@ -56,9 +58,6 @@ For deep learning methods (RAFT, SEA-RAFT, WAFT):
 
 ```bash
 pip install -e ".[deep]"
-
-# WAFT additionally requires gdown for Google Drive model downloads:
-pip install gdown
 ```
 
 For everything (fast + deep + dev):
@@ -129,9 +128,6 @@ Select checkpoint variants via the `params` argument:
 ```python
 # RAFT variants
 uv = estimate_flow(im1, im2, method='raft', params={'model_name': 'raft-sintel'})
-
-# WAFT variants
-uv = estimate_flow(im1, im2, method='waft', params={'model_name': 'waft-sintel'})
 ```
 
 ## Model Weights
@@ -202,11 +198,6 @@ from optical_flow.methods.deep import RAFTFlow, SEARAFTFlow, WAFTFlow
 
 # RAFT with Sintel-trained weights on GPU
 model = RAFTFlow(model_name='raft-sintel', device='cuda', iters=24)
-model._im1, model._im2 = im1, im2
-uv = model.compute_flow()
-
-# WAFT with Sintel fine-tuning
-model = WAFTFlow(model_name='waft-sintel', device='cuda')
 model._im1, model._im2 = im1, im2
 uv = model.compute_flow()
 ```
@@ -295,6 +286,7 @@ Jupyter notebooks are provided in `notebooks/`. Each `optical_flow` notebook has
 | `deep_flow_benchmark.ipynb` | -- | DL vs variational benchmark on all 8 Middlebury sequences |
 
 
+
 ## Package Structure
 
 ```
@@ -309,9 +301,8 @@ flow_code_python/
 │   │       ├── _base.py       # DeepFlowBase ABC
 │   │       ├── raft.py        # RAFTFlow wrapper
 │   │       ├── sea_raft.py    # SEARAFTFlow wrapper
-│   │       ├── waft.py        # WAFTFlow wrapper
 │   │       ├── _model_cache.py # Auto-download and caching
-│   │       └── _vendor/       # Vendored inference code (BSD-3-Clause)
+│   │       └── _vendor/       # Vendored inference code
 │   │           ├── raft/
 │   │           ├── sea_raft/
 │   │           └── waft/      # Includes DepthAnythingV2 + DINOv2
@@ -353,7 +344,7 @@ flow_code_python/
 
 The variational methods (`optical_flow`, `flow_fast`) are provided for **research purposes only**, consistent with the original MATLAB release from Brown University. **Commercial use is strictly prohibited.** See [LICENSE](LICENSE).
 
-The vendored deep learning code (RAFT, SEA-RAFT, WAFT) is from Princeton Vision & Learning Lab under the **BSD 3-Clause License**. See individual license files in `optical_flow/methods/deep/_vendor/*/LICENSE`.
+The vendored deep learning code for **RAFT, SEA-RAFT, WAFT** is from Princeton Vision & Learning Lab under the **BSD 3-Clause License**. 
 
 ## Citations
 

@@ -73,3 +73,6 @@ docs/.doctrees/
 
 # Data download markers (keep actual data, ignore download flags)
 .downloaded_*
+
+# Downloaded Cell Tracking Challenge datasets
+data/cell_tracking_challenge/

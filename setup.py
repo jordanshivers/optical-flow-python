@@ -26,6 +26,7 @@ setup(
         ],
         'deep': [
             'torch>=1.6',
+            'torchvision>=0.10',
             'timm',
             'safetensors',
             'huggingface_hub',

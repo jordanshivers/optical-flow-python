@@ -197,7 +197,7 @@ def _download_gdrive(info, local_path):
         import gdown
     except ImportError:
         raise RuntimeError(
-            "gdown is required to download WAFT models from Google Drive.\n"
+            "gdown is required to download models from Google Drive (e.g. WAFT).\n"
             "Install with: pip install gdown"
         )
 
