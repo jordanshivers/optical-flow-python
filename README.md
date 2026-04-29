@@ -2,9 +2,11 @@
 
 A Python package for optical flow estimation, combining classical and deep learning approaches.
 
-![Optical flow on migrating cells (Fluo-N2DH-SIM+): grayscale, Middlebury color encoding, quiver — from `notebooks/cell_migration_demo.ipynb`](cells.gif)
-
-*SEA-RAFT flow on the `Fluo-N2DH-SIM+` sequence from the [Cell Tracking Challenge](https://celltrackingchallenge.net/) — see `notebooks/cell_migration_demo.ipynb`.*
+<p align="center">
+  <img src="cells.gif" alt="Optical flow on migrating cells (Fluo-N2DH-SIM+): grayscale, Middlebury color encoding, quiver — from notebooks/cell_migration_demo.ipynb" />
+  <br />
+  <sub><em>SEA-RAFT flow on the <code>Fluo-N2DH-SIM+</code> sequence from the <a href="https://celltrackingchallenge.net/">Cell Tracking Challenge</a> — see <code>notebooks/cell_migration_demo.ipynb</code>.</em></sub>
+</p>
 
 The variational methods are a largely a Python reimplementation of the MATLAB codebase (https://cs.brown.edu/people/mjblack/code.html) from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010), with the addition of an implementation of the Lucas-Kanade local method. The deep learning methods include RAFT, SEA-RAFT, and WAFT (vendored from Princeton Vision & Learning Lab). 
 
