@@ -1,5 +1,4 @@
-This Python reimplementation is provided for research purposes only, 
-consistent with the original MATLAB release from Brown University.
+The variational methods in this package are a reimplementation of the MATLAB codebase from Sun, Roth, and Black, *"Secrets of Optical Flow Estimation and Their Principles"* (CVPR 2010), and are provided for research purposes only, consistent with the original MATLAB release from Brown University.
 
 See the original license terms at:
 https://cs.brown.edu/people/mjblack/BrownFlowCopyright2010.html

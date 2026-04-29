@@ -292,7 +292,7 @@ flow_code_python/
 
 ## License
 
-The variational methods (`optical_flow`, `flow_fast`) are provided for **research purposes only**, consistent with the original MATLAB release from Brown University. **Commercial use is strictly prohibited.** See [LICENSE](LICENSE).
+The variational methods (`optical_flow`, `flow_fast`) are provided for **research purposes only**, consistent with the original MATLAB release from Brown University. See [LICENSE](LICENSE).
 
 The vendored deep learning code for **RAFT, SEA-RAFT, WAFT** is from Princeton Vision & Learning Lab under the **BSD 3-Clause License**. 
 
